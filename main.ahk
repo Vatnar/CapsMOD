@@ -18,3 +18,21 @@ return
 
 ; Include RustRover-specific shortcuts
 #Include rustShortcuts.ahk
+
+; === Global Caps + h help handler ===
+CapsLock & h::
+{
+    if (IsRustRoverActive()) {
+        ShowRustHelp()
+    } else {
+        MsgBox, 64, Global Shortcut Help,
+(
+Caps + q → Run previous command (pwsh)
+Caps + h → Show this help
+Caps + æ → å
+Caps + ø → ø
+Caps + å → æ
+)
+    }
+}
+return
