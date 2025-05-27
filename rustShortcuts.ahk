@@ -51,14 +51,18 @@ global terminalWarned := false
 
 RunCargoCommand(command, returnFocus := false) {
     WinGetTitle, activeTitle, A
-    IfWinExist, pwsh
+    if WinExist("pwsh")
     {
         WinActivate
         WinWaitActive, pwsh,, 1
         if (ErrorLevel)
             return
-
+        
+        ; Clear the current line: Home + Shift+End + Del
+        Send, {Home}+{End}{Del}
+        Send, clear{Enter}        
         Send, %command%{Enter}
+        
         if (returnFocus && activeTitle != "pwsh")
             WinActivate, %activeTitle%
     }
@@ -67,6 +71,7 @@ RunCargoCommand(command, returnFocus := false) {
         terminalWarned := true
     }
 }
+
 
 
 
