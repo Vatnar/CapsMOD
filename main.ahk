@@ -2,7 +2,7 @@
 #SingleInstance Force
 #Persistent
 #NoEnv
-
+SetKeyDelay, -1, 0  ; Send instantly with no delay
 
 ; Disable CapsLock default behavior
 SetCapsLockState, AlwaysOff
@@ -31,13 +31,21 @@ CapsLock & h::
     } else {
         MsgBox, 64, Global Shortcut Help,
 (
-Caps + q → Run previous command (pwsh)
-Caps + h → Show this help
-Append shift for capitalization
-Caps + æ -> æ
-Caps + ø -> ø
-Caps + å -> å
-Caps + e -> é
+Global Shortcuts:
+
+Terminal Commands:
+  Caps + q -> Run previous command (pwsh)
+  Caps + p -> Open terminal in pwd of file explorer
+
+Typing & Letters:
+  Append Shift for capitalization
+  Caps + æ -> æ
+  Caps + ø -> ø
+  Caps + å -> å
+  Caps + e -> é
+
+General:
+  Caps + h -> Show this help
 )
     }
 }

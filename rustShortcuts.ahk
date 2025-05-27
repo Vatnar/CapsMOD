@@ -5,13 +5,14 @@
 CapsLock & r:: RunCargoCommand("cargo run")
 CapsLock & t:: RunCargoCommand("cargo test")
 CapsLock & c:: RunCargoCommand("cargo clippy")
-CapsLock & d:: RunCargoCommand("cargo doc --open")
+CapsLock & d:: RunCargoCommand("cargo doc --open", true)
 CapsLock & b:: RunCargoCommand("cargo build")
 CapsLock & m:: RunCargoCommand("cargo check")
 CapsLock & x:: RunCargoCommand("cargo clean")
 CapsLock & u:: RunCargoCommand("cargo update")
-CapsLock & f:: RunCargoCommand("cargo clippy --fix --allow-dirty --allow-staged")
-CapsLock & l:: RunCargoCommand("cargo fmt")
+CapsLock & f:: RunCargoCommand("cargo clippy --fix --allow-dirty --allow-staged", true)
+CapsLock & l:: RunCargoCommand("cargo fmt", true)
+
 
 #If  ; End context
 
@@ -22,32 +23,52 @@ ShowRustHelp() {
 (
 RustRover AHK Shortcuts:
 
-Caps + r -> cargo run
-Caps + t -> cargo test
-Caps + c -> cargo clippy
-Caps + d -> cargo doc --open
-Caps + b -> cargo build
-Caps + m -> cargo check
-Caps + x -> cargo clean
-Caps + u -> cargo update
-Caps + f -> cargo clippy --fix --allow-dirty --allow-staged
-Caps + l -> cargo fmt
-Caps + h -> show this help
+Build & Check:
+  Caps + b -> cargo build
+  Caps + m -> cargo check
+  Caps + x -> cargo clean
+
+Run & Test:
+  Caps + r -> cargo run
+  Caps + t -> cargo test
+
+Lint & Format:
+  Caps + c -> cargo clippy
+  Caps + f -> cargo clippy --fix --allow-dirty --allow-staged
+  Caps + l -> cargo fmt
+
+Documentation:
+  Caps + d -> cargo doc --open
+
+Misc:
+  Caps + u -> cargo update
+  Caps + h -> show this help
 )
 }
 
-RunCargoCommand(command) {
+
+global terminalWarned := false
+
+RunCargoCommand(command, returnFocus := false) {
+    WinGetTitle, activeTitle, A
     IfWinExist, pwsh
     {
         WinActivate
-        Sleep 100
+        WinWaitActive, pwsh,, 1
+        if (ErrorLevel)
+            return
+
         Send, %command%{Enter}
+        if (returnFocus && activeTitle != "pwsh")
+            WinActivate, %activeTitle%
     }
-    else
-    {
+    else if (!terminalWarned) {
         MsgBox, Terminal window (pwsh) not found!
+        terminalWarned := true
     }
 }
+
+
 
 IsRustRoverActive() {
     WinGet, pid, PID, A
