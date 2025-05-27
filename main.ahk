@@ -1,4 +1,8 @@
 ﻿; main.ahk
+#SingleInstance Force
+#Persistent
+#NoEnv
+
 
 ; Disable CapsLock default behavior
 SetCapsLockState, AlwaysOff
