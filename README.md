@@ -1,6 +1,6 @@
 # CapslockMOD
 
-![CapslockMOD Logo](capmod.png)
+![CapslockMOD Logo](img/capmod.png)
 
 CapslockMOD is an AutoHotkey script that turns your Caps Lock key into a handy modifier key.
 
@@ -8,12 +8,11 @@ CapslockMOD is an AutoHotkey script that turns your Caps Lock key into a handy m
 
 ## Features
 
-- Maps Caps Lock + keys to Norwegian letters (æ, ø, å, é).  
-- Shortcut to rerun last command
+- Maps Caps Lock + keys to custom actions (or commands) 
 - RustRover-specific shortcuts for common Cargo commands like `cargo run`, `cargo test`, `cargo build`, and more.  
-- Easily extensible
 - Quick tap Caps Lock sends Escape (who uses capslock anyways)
-- Shortcuts only work when the right window is active.  
+- Shortcuts only work when the right window is active. 
+- Help menu with caps + h
 
 ---
 
@@ -31,21 +30,22 @@ CapslockMOD is an AutoHotkey script that turns your Caps Lock key into a handy m
    - Add or change shortcuts in separate `.ahk` files for different apps.  
    - Edit global shortcuts in `globalShortcuts.ahk`.  
    - Update detection functions to add support for other programs (like CLion, VSCode).
+   - Take a look at rustShortcuts.ahk for inspiration
 
 ---
 
-## RustRover shortcuts example
-
-- `CapsLock + r` → `cargo run`  
-- `CapsLock + t` → `cargo test`  
-- `CapsLock + c` → `cargo clippy`  
-- `CapsLock + d` → `cargo doc --open`  
-- `CapsLock + b` → `cargo build`  
-- `CapsLock + m` → `cargo check`  
-- `CapsLock + x` → `cargo clean`  
-- `CapsLock + u` → `cargo update`
+## Global shortcuts help menu
+![GlobalHelp](img/help.png)
 
 ---
+
+
+## RustRover shortcuts help menu
+
+![RustRoverHelp](img/ruasthelp.png)
+
+---
+
 
 ## Contributing
 
@@ -55,8 +55,6 @@ Feel free to open issues or pull requests if you want to add stuff or fix bugs.
 
 ## License
 
-MIT License — see the [LICENSE](LICENSE) file.
+MIT License
 
----
 
-Made by Peter V. Andersson

@@ -6,45 +6,91 @@ CapsLock & r:: RunCargoCommand("cargo run")
 CapsLock & t:: RunCargoCommand("cargo test")
 CapsLock & c:: RunCargoCommand("cargo clippy")
 CapsLock & d:: RunCargoCommand("cargo doc --open", true)
+CapsLock & p:: RunCargoCommand("cargo doc --document-private-items --open", true)
 CapsLock & b:: RunCargoCommand("cargo build")
-CapsLock & m:: RunCargoCommand("cargo check")
 CapsLock & x:: RunCargoCommand("cargo clean")
 CapsLock & u:: RunCargoCommand("cargo update")
 CapsLock & f:: RunCargoCommand("cargo clippy --fix --allow-dirty --allow-staged", true)
 CapsLock & l:: RunCargoCommand("cargo fmt", true)
-
+CapsLock & m:: RunCargoCommand("cargo `+nightly miri run")
+CapsLock & n:: RunCargoCommand("cargo `+nightly miri test")
 
 #If  ; End context
 
 ; === Rust-specific helpers ===
 
 ShowRustHelp() {
-    MsgBox, 64, RustRover Shortcuts,
-(
-RustRover AHK Shortcuts:
+    Gui, RustHelp:New, +AlwaysOnTop +ToolWindow -Caption +Border
+    Gui, RustHelp:Margin, 20, 20
+    Gui, RustHelp:Font, s10, Segoe UI
 
-Build & Check:
-  Caps + b -> cargo build
-  Caps + m -> cargo check
-  Caps + x -> cargo clean
+    Gui, RustHelp:Add, Text,, 🦀 RustRover Shortcuts:
 
-Run & Test:
-  Caps + r -> cargo run
-  Caps + t -> cargo test
+    ; Build & Check
+    Gui, RustHelp:Add, Text, y+10,
+        (Join`n
+        🧱 Build & Check:
+        • Caps + b → cargo build
+        • Caps + x → cargo clean
+        • Caps + c → cargo clippy
+        • Caps + f → cargo clippy --fix --allow-dirty --allow-staged
+        )
 
-Lint & Format:
-  Caps + c -> cargo clippy
-  Caps + f -> cargo clippy --fix --allow-dirty --allow-staged
-  Caps + l -> cargo fmt
+    ; Run
+    Gui, RustHelp:Add, Text, y+10,
+        (Join`n
+        🚀 Run:
+        • Caps + r → cargo run
+        • Caps + m → Run miri (analyze unsafe code at runtime)
+        )
 
-Documentation:
-  Caps + d -> cargo doc --open
+    ; Test
+    Gui, RustHelp:Add, Text, y+10,
+        (Join`n
+        🧪 Test:
+        • Caps + t → cargo test
+        • Caps + n → Run miri test
+        )
 
-Misc:
-  Caps + u -> cargo update
-  Caps + h -> show this help
-)
+    ; Docs
+    Gui, RustHelp:Add, Text, y+10,
+        (Join`n
+        📚 Docs:
+        • Caps + d → cargo doc --open
+        • Caps + p → cargo doc --document-private-items --open
+        )
+
+    ; Misc
+    Gui, RustHelp:Add, Text, y+10,
+        (Join`n
+        🛠️ Misc:
+        • Caps + l → cargo fmt
+        • Caps + u → cargo update
+        • Caps + h → Show this help
+        )
+
+    Gui, RustHelp:Show, AutoSize Center, 🦀 Rust Shortcut Help
+    Gui, RustHelp:+LastFound
+    global hRustHelpGui := WinExist("A")
+
+    ; Listen for left mouse clicks inside this window
+    OnMessage(0x201, "RustHelp_WM_LBUTTONDOWN") ; WM_LBUTTONDOWN = 0x201
 }
+
+RustHelp_WM_LBUTTONDOWN(wParam, lParam, msg, hwnd) {
+    global hRustHelpGui
+    if (hwnd = hRustHelpGui) {
+        Gui, RustHelp:Destroy
+        ; Unregister message handler so it doesn't keep firing
+        OnMessage(0x201, "")
+    }
+}
+
+RustHelpGuiEscape:
+Gui, RustHelp:Destroy
+return
+
+
 
 
 global terminalWarned := false
@@ -61,7 +107,8 @@ RunCargoCommand(command, returnFocus := false) {
         ; Clear the current line: Home + Shift+End + Del
         Send, {Home}+{End}{Del}
         Send, clear{Enter}        
-        Send, %command%{Enter}
+        commandEscaped := StrReplace(command, "+", "{+}")
+        Send, %commandEscaped%{Enter}
         
         if (returnFocus && activeTitle != "pwsh")
             WinActivate, %activeTitle%
