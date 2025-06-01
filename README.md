@@ -12,7 +12,7 @@ CapslockMOD is an AutoHotkey script that turns your Caps Lock key into a handy m
 - RustRover-specific shortcuts for common Cargo commands like `cargo run`, `cargo test`, `cargo build`, and more.  
 - Quick tap Caps Lock sends Escape (who uses capslock anyways)
 - Shortcuts only work when the right window is active. 
-- Help menu with caps + h
+- Help menu with caps + h (click the window or press ESC to close)
 
 ---
 
