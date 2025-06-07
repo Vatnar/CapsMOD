@@ -14,6 +14,8 @@ CapslockMOD is an AutoHotkey script that turns your Caps Lock key into a handy m
 - Shortcuts only work when the right window is active. 
 - Help menu with caps + h (click the window or press ESC to close)
 
+### New
+- `CAPS + t` in RustRover now opens a dialog where you can specify a pattern to decide what tests to run!
 ---
 
 ## Usage
