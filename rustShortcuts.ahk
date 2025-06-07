@@ -1,9 +1,72 @@
 ﻿; rustShortcuts.ahk
 
+
+#If IsRustRoverActive()
+
+CapsLock & t::
+{
+    Gui, TestInput:New, +AlwaysOnTop +ToolWindow -Caption +Border
+    Gui, TestInput:Margin, 20, 20
+    Gui, TestInput:Font, s10, Segoe UI
+
+    Gui, TestInput:Add, Text,, Enter test pattern:
+    Gui, TestInput:Add, Edit, vUserInput w300
+
+    Gui, TestInput:Show, AutoSize Center, 🦀 Run Cargo Nextest
+    GuiControl, Focus, UserInput
+    return
+}
+
+GuiTestInputEscape:
+GuiTestInputClose:
+{
+    Gui, TestInput:Destroy
+    return
+}
+
+GuiTestInputSubmit:
+{
+    Gui, TestInput:Submit
+    Gui, TestInput:Destroy
+
+    if (UserInput = "")
+        RunCargoCommand("cargo nextest run")
+    else
+        RunCargoCommand("cargo nextest run " . Chr(34) . UserInput . Chr(34))
+    return
+}
+
+
+; Make Enter submit the form
+#IfWinActive ahk_class AutoHotkeyGUI
+    ~Enter::
+    {
+        WinGetTitle, activeTitle, A
+        if (activeTitle = "🦀 Run Cargo Nextest")
+        {
+            Gosub, GuiTestInputSubmit
+            return
+        }
+    }
+#IfWinActive
+
+#If  ; End context
+
+
+
+#IfWinActive, 🦀 Run Cargo Nextest
+Esc::
+{
+    Gui, TestInput:Destroy
+    return
+}
+#IfWinActive
+
+
+
 #If IsRustRoverActive()
 
 CapsLock & r:: RunCargoCommand("cargo run")
-CapsLock & t:: RunCargoCommand("cargo test")
 CapsLock & c:: RunCargoCommand("cargo clippy")
 CapsLock & d:: RunCargoCommand("cargo doc --open", true)
 CapsLock & p:: RunCargoCommand("cargo doc --document-private-items --open", true)
@@ -48,7 +111,7 @@ ShowRustHelp() {
     Gui, RustHelp:Add, Text, y+10,
         (Join`n
         🧪 Test:
-        • Caps + t → cargo test
+        • Caps + t → cargo nexttest run
         • Caps + n → Run miri test
         )
 
