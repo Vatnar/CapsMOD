@@ -49,3 +49,40 @@ CapsLock & p::
 }
 return
 
+CapsLock & Space::
+{
+    ; Get all Firefox windows
+    WinGet, idList, List, ahk_class MozillaWindowClass
+    if (idList = 0)
+    {
+        MsgBox, No Firefox windows found.
+        return
+    }
+
+    ; Get the active window's HWND
+    WinGet, activeHwnd, ID, A
+
+    ; Find active window index in the list
+    idx := 0
+    Loop, %idList%
+    {
+        this_id := idList%A_Index%
+        if (this_id = activeHwnd)
+        {
+            idx := A_Index
+            break
+        }
+    }
+
+    ; Determine next window index to activate
+    if (idx = 0 || idx = idList)
+        nextIdx := 1
+    else
+        nextIdx := idx + 1
+
+    nextId := idList%nextIdx%
+    WinActivate, ahk_id %nextId%    
+}
+return
+
+
