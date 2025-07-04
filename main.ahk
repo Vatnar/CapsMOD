@@ -1,18 +1,31 @@
-﻿; main.ahk
-#SingleInstance Force
+﻿#SingleInstance Force
 #Persistent
 #NoEnv
-SetKeyDelay, -1, 0  ; Send instantly with no delay
-SetCapsLockState, AlwaysOff  ; Disable CapsLock default behavior
+SetKeyDelay, -1, 0
+SetCapsLockState, AlwaysOff
 
 ; === Global state ===
-global g_enableHandmade := true  ; default enabled
+global g_configFile := A_AppData . "\CapsMod\config.ini"
+if !FileExist(A_AppData "\CapsMod")
+    FileCreateDir, % A_AppData "\CapsMod"
+global g_explorerPath
+global g_enableHandmade
+
+; Load config or use defaults
+IniRead, g_explorerPath, %g_configFile%, Shortcuts, ExplorerPath, C:\Users\peter\dev
+IniRead, g_enableHandmade, %g_configFile%, Shortcuts, EnableHandmade, 1
+g_enableHandmade := (g_enableHandmade = 1)  ; convert to boolean
 
 ; === CapsLock tap = Esc ===
 CapsLock::
     KeyWait, CapsLock, T0.3
     if !ErrorLevel
         Send, {Esc}
+return
+
+; === CapsLock + e opens explorer in configured path ===
+CapsLock & e::
+    Run, explorer.exe %g_explorerPath%
 return
 
 ; === Shortcut config GUI ===
@@ -27,14 +40,39 @@ ShowShortcutConfig() {
     checked := g_enableHandmade ? "Checked" : ""
     Gui, ShortcutConfig:Add, Checkbox, vEnableHandmadeChecked %checked%, Enable Handmade shortcuts
 
-    Gui, ShortcutConfig:Add, Button, gApplyShortcutConfig, Apply
+    Gui, ShortcutConfig:Add, Text, y+10, Explorer Path (Caps + e):
+    Gui, ShortcutConfig:Add, Edit, vExplorerPathEdit w300 gEditEnterHandler, %g_explorerPath%
+
+    Gui, ShortcutConfig:Add, Button, gApplyShortcutConfig Default, Apply
     Gui, ShortcutConfig:Add, Button, gCancelShortcutConfig, Cancel
+
+    ; Set up handlers for close & escape
+    Gui, ShortcutConfig:+Owner
     Gui, ShortcutConfig:Show, AutoSize Center, ⚙️ Shortcut Config
 }
+
+; This label handles Enter pressed in the edit control
+EditEnterHandler:
+    if (A_GuiEvent = "Enter") {
+        Gosub, ApplyShortcutConfig
+    }
+return
+
+; Handle window close and ESC as cancel
+GuiShortcutConfigClose:
+GuiShortcutConfigEscape:
+    Gosub, CancelShortcutConfig
+return
 
 ApplyShortcutConfig:
     Gui, ShortcutConfig:Submit
     g_enableHandmade := EnableHandmadeChecked
+    g_explorerPath := ExplorerPathEdit
+
+    ; Write to config file
+    IniWrite, %g_explorerPath%, %g_configFile%, Shortcuts, ExplorerPath
+    IniWrite, % (g_enableHandmade ? 1 : 0), %g_configFile%, Shortcuts, EnableHandmade
+
     Gui, ShortcutConfig:Destroy
 return
 
@@ -46,16 +84,6 @@ return
 CapsLock & h:: ShowContextHelp()
 
 ShowContextHelp() {
-    if (IsRustRoverActive()) {
-        ShowRustHelp()
-    } else if (IsHandmadeActive()) {
-        ShowHandmadeHelp()
-    } else {
-        ShowGlobalHelp()
-    }
-}
-
-ShowGlobalHelp() {
     Gui, GlobalHelp:New, +AlwaysOnTop +ToolWindow -Caption +Border +Owner
     Gui, GlobalHelp:Margin, 20, 20
     Gui, GlobalHelp:Font, s10, Segoe UI
@@ -74,9 +102,9 @@ ShowGlobalHelp() {
     • Caps + æ → æ
     • Caps + ø → ø
     • Caps + å → å
-    • Caps + e → é
 
     📌 General:
+    • Caps + e → Open explorer in configured path
     • Caps + h → Show this help
     • Caps + / → Configure shortcuts
     )

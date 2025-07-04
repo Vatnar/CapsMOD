@@ -2,22 +2,19 @@
 
 ; Global: CapsLock + q reruns last command in terminal (pwsh)
 CapsLock & q::
-{
     IfWinExist, pwsh
     {
         WinActivate
-        Sleep 100
+        Sleep, 100
         Send, {Up}{Enter}
     }
     else
     {
         MsgBox, Terminal window (pwsh) not found!
     }
-}
 return
 
 CapsLock & p::
-{
     explorer := ComObjCreate("Shell.Application")
     activeExplorerFolder := ""
 
@@ -27,9 +24,8 @@ CapsLock & p::
     ; Loop through all explorer windows
     for window in explorer.Windows
     {
-        if (InStr(window.FullName, "explorer.exe"))
+        if InStr(window.FullName, "explorer.exe")
         {
-            ; Compare HWNDs (window.HWND is a COM property)
             if (window.HWND = activeHwnd)
             {
                 activeExplorerFolder := window.Document.Folder.Self.Path
@@ -46,11 +42,9 @@ CapsLock & p::
     {
         MsgBox, Could not find an active Explorer window.
     }
-}
 return
 
 CapsLock & Space::
-{
     ; Get all Firefox windows
     WinGet, idList, List, ahk_class MozillaWindowClass
     if (idList = 0)
@@ -81,8 +75,5 @@ CapsLock & Space::
         nextIdx := idx + 1
 
     nextId := idList%nextIdx%
-    WinActivate, ahk_id %nextId%    
-}
+    WinActivate, ahk_id %nextId%
 return
-
-
