@@ -1,11 +1,11 @@
-@echo off
+	@echo off
 
 
 REM Paths and filenames
 set "AHK_COMPILER=C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe"
 set "SOURCE=main.ahk"
 set "DEST=C:\Users\peter\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\CapsMOD.exe"
-set "ICON=C:\Users\peter\Documents\AutoHotkey\CapsMOD\capmod.ico"
+set "ICON=Z:\CapsMOD\capmod.ico"
 set "BASEFILE=C:\Program Files\AutoHotkey\v1.1.37.02\Unicode 64-bit.bin"
 
 REM Kill running CapsMOD.exe if running

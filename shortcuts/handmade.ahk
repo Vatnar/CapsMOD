@@ -3,50 +3,35 @@
 ; Global context: shortcuts active anytime Handmade is enabled and relevant apps are open
 #If g_enableHandmade
 
-CapsLock & b:: RunHandmadeCommand(".\build.bat")
+CapsLock & b:: RunHandmadeCommand(g_buildPath)
 
-CapsLock & d::
-    if WinExist("ahk_exe devenv.exe")
-        WinActivate
-    else
-        MsgBox, Visual Studio (devenv.exe) not found!
-return
+CapsLock & d:: ActivateOrRunApplication(g_debuggerPath, "Debugger")
 
-CapsLock & c::
-    if WinExist("ahk_exe clion64.exe")
-        WinActivate
-    else
-        MsgBox, CLion not found!
-return
+CapsLock & c:: ActivateOrRunApplication(g_editorPath, "Editor")
 
-CapsLock & h:: ShowHandmadeHelp()
+#If ; End global context
 
-#If  ; End global context
+; === Helper function to activate or run an application ===
+ActivateOrRunApplication(appPath, appName) {
+    ; Extract executable name from path for WinExist
+    SplitPath, appPath, appExeName
+    if (appExeName = "") {
+        MsgBox, 48, Error, No %appName% path configured or invalid.
+        return
+    }
 
-; === Handmade Helpers ===
-
-ShowHandmadeHelp() {
-    Gui, HandmadeHelp:New, +AlwaysOnTop +ToolWindow -Caption +Border +Owner
-    Gui, HandmadeHelp:Margin, 20, 20
-    Gui, HandmadeHelp:Font, s10, Segoe UI
-
-    Gui, HandmadeHelp:Add, Text,, Handmade C++ Shortcuts:
-    Gui, HandmadeHelp:Add, Text, y+10,
-    (Join`n
-    Build:
-    • Caps + b → run build.bat
-
-    Misc:
-    • Caps + c → switch to CLion
-    • Caps + d → switch to Visual Studio
-    • Caps + h → show this help
-    )
-
-    Gui, HandmadeHelp:Show, AutoSize Center, Handmade Shortcut Help
-    Gui, HandmadeHelp:+LastFound
-    global hHandmadeHelpGui := WinExist("A")
-    OnMessage(0x201, "HandmadeHelp_WM_LBUTTONDOWN")
+    if WinExist("ahk_exe " . appExeName) {
+        WinActivate, ahk_exe %appExeName%
+    } else {
+        try {
+            Run, %appPath%
+        } catch e {
+            MsgBox, 48, %appName% Not Found, Could not find or launch %appName% at "%appPath%".
+        }
+    }
 }
+
+
 
 HandmadeHelp_WM_LBUTTONDOWN(wParam, lParam, msg, hwnd) {
     global hHandmadeHelpGui
@@ -68,34 +53,24 @@ RunHandmadeCommand(command, returnFocus := false) {
 
     if WinExist("ahk_exe windowsterminal.exe") {
         WinGet, idList, List, ahk_exe windowsterminal.exe
-        found := false
+        if (idList > 0) {
+            first_id := idList1
+            WinActivate, ahk_id %first_id%
+            WinWaitActive, ahk_id %first_id%,, 1
+            if (ErrorLevel)
+                return
 
-        Loop, % idList {
-            this_id := idList%A_Index%
-            WinGetTitle, thisTitle, ahk_id %this_id%
+            Send, {Home}+{End}{Del}
+            Send, clear{Enter}
 
-            if InStr(thisTitle, "Developer PowerShell") {
-                found := true
-                WinActivate, ahk_id %this_id%
-                WinWaitActive, ahk_id %this_id%,, 1
-                if (ErrorLevel)
-                    return
+            commandEscaped := StrReplace(command, "+", "{+}")
+            Send, %commandEscaped%{Enter}
 
-                Send, {Home}+{End}{Del}
-                Send, clear{Enter}
-
-                commandEscaped := StrReplace(command, "+", "{+}")
-                Send, %commandEscaped%{Enter}
-
-                if (returnFocus && activeTitle != thisTitle)
-                    WinActivate, %activeTitle%
-
-                break
-            }
+            if (returnFocus && activeTitle != "")
+                WinActivate, %activeTitle%
         }
-
-        if (!found && !terminalWarned) {
-            MsgBox, Developer PowerShell tab not found in Windows Terminal!
+        else if (!terminalWarned) {
+            MsgBox, No active Windows Terminal window found!
             terminalWarned := true
         }
     }
