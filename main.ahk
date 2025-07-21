@@ -1,4 +1,5 @@
-﻿#SingleInstance Force
+﻿; main.ahk
+#SingleInstance Force
 #Persistent
 #NoEnv
 #UseHook
